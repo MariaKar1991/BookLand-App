@@ -1,1 +1,1 @@
-# MERN Full Stack BookStore CRUD App 
+# MERN Stack CRUD App - BookStore
