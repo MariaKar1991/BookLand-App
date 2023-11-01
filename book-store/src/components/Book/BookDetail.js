@@ -1,3 +1,4 @@
+// Importing necessary modules and components from Material-UI and React
 import {
   Box,
   Button,
@@ -10,37 +11,58 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+// Functional component for displaying and updating book details
 const BookDetail = () => {
+  // State for storing form inputs and checkbox status
   const [inputs, setInputs] = useState();
-  const id = useParams().id;
   const [checked, setChecked] = useState(false);
+
+  // Accessing the book ID from the route parameters
+  const id = useParams().id;
+
+  // Accessing the navigation object using useNavigate hook
   const history = useNavigate();
+
+  // Effect hook to fetch book details when the component mounts
   useEffect(() => {
     const fetchHandler = async () => {
-      await axios
-        .get(`http://localhost:5000/books/${id}`)
-        .then((res) => res.data)
-        .then((data) => setInputs(data.book));
+      try {
+        // Sending a GET request to the server for the specified book ID
+        const response = await axios.get(`http://localhost:5000/books/${id}`);
+        // Setting the book details in the state
+        setInputs(response.data.book);
+      } catch (error) {
+        console.error("Error fetching book details:", error);
+      }
     };
     fetchHandler();
   }, [id]);
 
+  // Asynchronous function to send a PUT request to update the book details
   const sendRequest = async () => {
-    await axios
-      .put(`http://localhost:5000/books/${id}`, {
+    try {
+      // Sending a PUT request to the server for the specified book ID
+      await axios.put(`http://localhost:5000/books/${id}`, {
         name: String(inputs.name),
         author: String(inputs.author),
         description: String(inputs.description),
         price: Number(inputs.price),
         image: String(inputs.image),
         available: Boolean(checked),
-      })
-      .then((res) => res.data);
+      });
+    } catch (error) {
+      console.error("Error updating book:", error);
+    }
   };
+
+  // Function to handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Calling the sendRequest function to update the book details
     sendRequest().then(() => history("/books"));
   };
+
+  // Function to handle input changes in the form
   const handleChange = (e) => {
     setInputs((prevState) => ({
       ...prevState,
@@ -48,6 +70,7 @@ const BookDetail = () => {
     }));
   };
 
+  // Rendering the form with book details for updating
   return (
     <div>
       {inputs && (
@@ -63,6 +86,7 @@ const BookDetail = () => {
             marginRight="auto"
             marginTop={10}
           >
+            {/* Form fields for updating book details */}
             <FormLabel>Name</FormLabel>
             <TextField
               value={inputs.name}
@@ -109,6 +133,8 @@ const BookDetail = () => {
               variant="outlined"
               name="image"
             />
+            
+            {/* Checkbox for indicating book availability */}
             <FormControlLabel
               control={
                 <Checkbox
@@ -119,6 +145,7 @@ const BookDetail = () => {
               label="Available"
             />
 
+            {/* Button to submit the updated book details */}
             <Button variant="contained" type="submit">
               Update Book
             </Button>
@@ -129,4 +156,6 @@ const BookDetail = () => {
   );
 };
 
+// Exporting the BookDetail component for use in other parts of the application
 export default BookDetail;
+
